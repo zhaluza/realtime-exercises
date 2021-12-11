@@ -1,5 +1,4 @@
 import express from "express";
-import bodyParser from "body-parser";
 import nanobuffer from "nanobuffer";
 import morgan from "morgan";
 
@@ -9,25 +8,40 @@ const getMsgs = () => Array.from(msg).reverse();
 
 // feel free to take out, this just seeds the server with at least one message
 msg.push({
-  user: "brian",
-  text: "hi",
+  user: "Brian",
+  text: "Zac is dumb as hell",
   time: Date.now(),
 });
 
 // get express ready to run
 const app = express();
 app.use(morgan("dev"));
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(express.static("frontend"));
 
 app.get("/poll", function (req, res) {
-  // use getMsgs to get messages to send back
-  // write code here
+  return res.json({
+    msg: getMsgs(),
+  });
 });
 
 app.post("/poll", function (req, res) {
-  // add a new message to the server
-  // write code here
+  const { user, text } = req.body;
+  if (!user || !text)
+    return res.status(400).json({
+      status: "Failure",
+      error: "Please include a user name and text",
+    });
+
+  msg.push({
+    user,
+    text,
+    time: Date.now(),
+  });
+
+  return res.json({
+    status: "Success",
+  });
 });
 
 // start the server
